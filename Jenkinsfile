@@ -1,10 +1,34 @@
 pipeline {
-    agent { docker { image 'maven:3.9.5-eclipse-temurin-17-alpine' } }
+    agent {
+        label 'JenkinsAgent1'
+    }
+
     stages {
-        stage('build') {
+        stage('Checkout') {
             steps {
-                sh 'mvn clean compile'
+                // Clona il repository GitHub
+                script {
+                    checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/mversariimolinfo/maven-java-samle']]])
+                }
             }
+        }
+
+        stage('Build') {
+            steps {
+                // Esegui il comando Maven
+                script {
+                    sh 'mvn clean compile'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build completata con successo!'
+        }
+        failure {
+            echo 'Build fallita. Controlla i log per maggiori dettagli.'
         }
     }
 }
